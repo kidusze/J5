@@ -89,16 +89,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class PinEntry extends JFrame {
-    private JTextField display;  // to show the entered PIN
-    private String pin = "";  // stores the PIN being entered as a string
+public class PinEntry {
 
-    public PinEntry() {
-        super();
+    public static void main(String[] args) {
+        JFrame f = new JFrame();
 
-        // Setup display
-        display = new JTextField(10);
-        display.setEditable(false); // the display cannot be edited directly
+        // Set up the display area (for showing entered PIN)
+        JTextField display = new JTextField(10);
+        display.setEditable(false); // display cannot be edited directly
 
         // Create panel for the buttons
         JPanel buttonPanel = new JPanel(new GridLayout(3, 3, 5, 5)); // 3x3 grid for buttons
@@ -109,10 +107,38 @@ public class PinEntry extends JFrame {
             "<", "0"
         };
 
+        StringBuilder pin = new StringBuilder(); // stores the PIN being entered
+
         // Add buttons to the panel
         for (String label : buttons) {
             JButton button = new JButton(label);
-            button.addActionListener(new ButtonClickListener());
+            button.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    String command = e.getActionCommand();
+
+                    if (command.equals("<")) {
+                        // Backspace functionality: Remove the last character from pin if there is one
+                        if (pin.length() > 0) {
+                            pin.deleteCharAt(pin.length() - 1);
+                        }
+                    } else if (pin.length() < 6) {
+                        // Only allow entering 6 digits
+                        pin.append(command);
+                    }
+
+                    // Update the display based on the current PIN length
+                    if (pin.toString().equals("202113")) {
+                        display.setText("YOU MAY ENTER!");
+                    } else {
+                        // Show the PIN as typed with the same length, replace digits with asterisks (*)
+                        StringBuilder displayText = new StringBuilder();
+                        for (int i = 0; i < pin.length(); i++) {
+                            displayText.append("*");
+                        }
+                        display.setText(displayText.toString());
+                    }
+                }
+            });
             buttonPanel.add(button);
         }
 
@@ -121,43 +147,12 @@ public class PinEntry extends JFrame {
         mainPanel.add(display, BorderLayout.NORTH);
         mainPanel.add(buttonPanel, BorderLayout.CENTER);
 
-        this.add(mainPanel);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.pack();
-    }
+        f.add(mainPanel); // add the main panel to the frame
 
-    // Inner class to handle button click events
-    private class ButtonClickListener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            String command = e.getActionCommand();
-            
-            if (command.equals("<")) {
-                // Backspace functionality: Remove the last character from pin if there is one
-                if (pin.length() > 0) {
-                    pin = pin.substring(0, pin.length() - 1);
-                }
-            } else if (pin.length() < 6) {
-                // Only allow entering 6 digits
-                pin += command;
-            }
-
-            // Update the display based on the current PIN length
-            if (pin.equals("202113")) {
-                display.setText("YOU MAY ENTER!");
-            } else {
-                // Show the PIN as typed with the same length, replace digits with asterisks (*)
-                StringBuilder displayText = new StringBuilder();
-                for (int i = 0; i < pin.length(); i++) {
-                    displayText.append("*");
-                }
-                display.setText(displayText.toString());
-            }
-        }
-    }
-
-    public static void main(String[] args) {
-        PinEntry pinEntry = new PinEntry();
-        pinEntry.setVisible(true);
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.pack(); // do alignment within the layout
+        f.setVisible(true); // make the frame visible
     }
 }
+
 ```
